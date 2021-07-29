@@ -24,11 +24,11 @@ body{
 }
 
 .btnSubmit{
-    font-size:large;  
+    font-size:x-large;  
     background-color: rgb(252, 251, 220);
-    height: 30px;
     border-color:cadetblue;
     width: 100px;
+    margin-top: 20px;
 }
 .welcome{
     margin: auto;
@@ -38,3 +38,12 @@ body{
     text-align: center;
     color:darkgoldenrod;
 }
+
+.dropdown{
+    font-size: x-large;
+    color:coral;
+}
+.dropdown-content{
+    font-size:22px;
+}
+

@@ -2,7 +2,30 @@ const express = require('express');
 const socketio = require('socket.io');
 const http = require('http');
 const router = require('./router');
+dotenv = require('dotenv').config();
+
 const { addUser, removeUser, getUser, getUserInRoom } = require("./users");
+
+const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
+const { IamAuthenticator } = require('ibm-watson/auth');
+const languageTranslator = new LanguageTranslatorV3({
+    version: '2018-05-01',
+    authenticator: new IamAuthenticator({
+      apikey: process.env.APIKEY,
+    }),
+    serviceUrl: process.env.URL,
+  });
+
+ const translate = async (translateParams, user, io, message)=> {
+     try{
+        const result = await languageTranslator.translate(translateParams)
+        const translatedMessage = result["result"]["translations"][0]["translation"]
+        console.log(result["result"]["translations"][0]["translation"])
+        io.to(user.room).emit('message', {user:user.name, text: message+" >> "+translatedMessage});
+     }catch(error){
+        io.to(user.room).emit('message', {user:user.name, text: message});
+     }
+ }
 
 const PORT = process.env.PORT || 5000 ;
 
@@ -12,7 +35,8 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 io.on('connection', (socket)=>{
-    socket.on('join', ({name, room}, callback )=>{
+   
+    socket.on('join', ({name, room, model}, callback )=>{
         const {error, user } = addUser ({id: socket.id, name:name, room:room})
         if(error) return callback({error:error, user:null});
         socket.emit('message', {user:'admin', text: `${user.name.toUpperCase()}, welcome to room ${user.room}`});
@@ -23,10 +47,13 @@ io.on('connection', (socket)=>{
         io.to(user.room).emit('roomData',{room: user.room, users:getUserInRoom(user.room)})
         callback({error:null,user:user});
     })
-    
-    socket.on('sendMessage',(message, callback) =>{
+
+    socket.on('sendMessage',(message, model, callback) =>{
         const user = getUser(socket.id);
-        io.to(user.room).emit('message', {user:user.name, text: message});
+        console.log("model", model)
+        const translateParams = {text: message, modelId:model }
+
+        translate(translateParams, user, io, message)
         io.to(user.room).emit('roomData', {room: user.room, users: getUserInRoom(user.room)});
         callback();
     })

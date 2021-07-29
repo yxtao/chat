@@ -8,30 +8,27 @@ let socket;
 const Chat = ( props )=> {
     const [name, setName] = useState('');
     const [room, setRoom] = useState('');
+    const [model, setModel] = useState('');
     const [users, setUsers] = useState([]);
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
-    const[error, setError] = useState();
     const [leave, SetLeave] = useState(false)
     const ENDPOINT = 'localhost:5000';
 
     useEffect (()=>{
         const data = queryString.parse(props.location.search);
-        const { name, room } = data;
+        const { name, room , model } = data;
 
         socket = io(ENDPOINT);
 
         setName(name);
         setRoom(room);
-        
-        socket.emit('join', {name: name, room:room}, ({error, user})=>{
+        setModel(model);
+
+        socket.emit('join', {name: name, room:room, model: model}, ({error, user})=>{
             if(error) {
                 alert(error);
-                setError(error)
-              }
-              else{
-                  console.log("error in Chat.js line 34")
-              }    
+              }  
          }); 
          console.log("called")
          return ()=>{
@@ -54,12 +51,11 @@ const Chat = ( props )=> {
 
     const sendMessage = (event)=>{
         event.preventDefault();
-
         if (message) {
-            socket.emit('sendMessage', message, ()=> {
-                setMessage('');
+            socket.emit('sendMessage', message, model, ()=> {
+                setMessage('');        
             })
-        }   
+        }
     }
 
     const handleLeave=()=>{
@@ -81,7 +77,7 @@ const Chat = ( props )=> {
        padding: "20px",
        backgroundColor:"antiquewhite",
    }
-   if (error !=null || leave == true ) 
+   if ( leave == true ) 
     return (
     <div className = "room">
         <Link to="/">
@@ -100,7 +96,7 @@ const Chat = ( props )=> {
                 { messages.map((message, i)=>
                 <div className="messageItem"  key={i}> 
                   <div style={message.user === name.trim().toLowerCase()? userStyle : guestStyle}> 
-                     <span className="userName">{message.user.replace(/\b(\w)/g, s => s.toUpperCase())} : </span>
+                     <span className="userName">{message.user&&message.user.replace(/\b(\w)/g, s => s.toUpperCase())} : </span>
                      {message.text} 
                   </div>
                  </div>)}
