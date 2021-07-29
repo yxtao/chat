@@ -1,0 +1,51 @@
+.chatContent{
+    background-color: whitesmoke;
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    font-size: large;
+    text-align: center;
+    color:darkgoldenrod;
+    border: 2px solid #7fffd4;
+    
+}
+
+.inputDiv{
+    width: 100%;
+    align-content: center;
+}
+.messageInput{
+    border: 1px solid rgb(131, 112, 7);
+    height:30px;
+    width: 100%;
+    margin-top: 50px;
+}
+
+.messageBox{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+}
+.messageItem{
+    margin:10px;
+    font-size: large;
+    padding: 5px;
+    text-align: left;
+    width:100%;   
+}
+
+.userName{
+    color:chocolate;
+    font-size: small;
+}
+
+.room{
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    font-size:xx-large;
+    text-align: center;
+    color:coral;
+    border: 2px solid #7fffd4;
+}
