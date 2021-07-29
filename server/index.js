@@ -35,7 +35,7 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 io.on('connection', (socket)=>{
-   
+  
     socket.on('join', ({name, room, model}, callback )=>{
         const {error, user } = addUser ({id: socket.id, name:name, room:room})
         if(error) return callback({error:error, user:null});
@@ -49,17 +49,25 @@ io.on('connection', (socket)=>{
     })
 
     socket.on('sendMessage',(message, model, callback) =>{
+        let info = null;
         const user = getUser(socket.id);
+        if(!(user&& user.room)) {
+            info = "you have logged out, please leave and join the room again";
+            callback(info);
+            return 
+        }
         console.log("model", model)
         const translateParams = {text: message, modelId:model }
 
         translate(translateParams, user, io, message)
         io.to(user.room).emit('roomData', {room: user.room, users: getUserInRoom(user.room)});
-        callback();
+        callback(info);
     })
 
     socket.on("leave", ()=>{
+       
         const user = removeUser (socket.id);  
+        if(!(user&& user.room)) return 
         if(user){
             io.to(user.room).emit('message', {user: 'admin', text: `${user.name.toUpperCase()} has left `});     
         }

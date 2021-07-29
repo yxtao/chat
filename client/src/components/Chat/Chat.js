@@ -31,10 +31,10 @@ const Chat = ( props )=> {
               }  
          }); 
          console.log("called")
-         return ()=>{
+          return ()=>{
             socket.emit('disconnect');
-            socket.off();
-        }
+             socket.off();
+         }
     },[ENDPOINT, props.location.search])
 
 
@@ -52,8 +52,11 @@ const Chat = ( props )=> {
     const sendMessage = (event)=>{
         event.preventDefault();
         if (message) {
-            socket.emit('sendMessage', message, model, ()=> {
-                setMessage('');        
+            socket.emit('sendMessage', message, model, (info)=> {
+                setMessage('');    
+                if(info){
+                    alert(info)
+                }    
             })
         }
     }
