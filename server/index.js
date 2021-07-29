@@ -30,6 +30,13 @@ io.on('connection', (socket)=>{
         io.to(user.room).emit('roomData', {room: user.room, users: getUserInRoom(user.room)});
         callback();
     })
+
+    socket.on("leave", ()=>{
+        const user = removeUser (socket.id);  
+        if(user){
+            io.to(user.room).emit('message', {user: 'admin', text: `${user.name.toUpperCase()} has left `});     
+        }
+    })
     socket.on('disconnect',()=>{
         const user = removeUser (socket.id);
        

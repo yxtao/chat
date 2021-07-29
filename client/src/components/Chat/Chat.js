@@ -12,6 +12,7 @@ const Chat = ( props )=> {
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState([]);
     const[error, setError] = useState();
+    const [leave, SetLeave] = useState(false)
     const ENDPOINT = 'localhost:5000';
 
     useEffect (()=>{
@@ -27,24 +28,16 @@ const Chat = ( props )=> {
             if(error) {
                 alert(error);
                 setError(error)
-              } else if (user){
-                  console.log(user);
-              }else{
-                  console.log("error in Chat.js line 34")
               }
-           
-         });
-        
+              else{
+                  console.log("error in Chat.js line 34")
+              }    
+         }); 
          console.log("called")
-         console.log(users)
          return ()=>{
             socket.emit('disconnect');
             socket.off();
-            console.log("disconnect called")
-            console.log(users)
         }
-       
-
     },[ENDPOINT, props.location.search])
 
 
@@ -56,20 +49,24 @@ const Chat = ( props )=> {
             setUsers(users);
             console.log(users)
           });
-         
     }, [messages])
    
+
     const sendMessage = (event)=>{
         event.preventDefault();
 
         if (message) {
-            socket.emit('sendMessage', message, ()=> setMessage(''))
+            socket.emit('sendMessage', message, ()=> {
+                setMessage('');
+            })
         }   
     }
 
     const handleLeave=()=>{
+        socket.emit('leave');
         socket.emit('disconnect');
         socket.off();
+        SetLeave(true);
     }
    const guestStyle = {
        color:"grey",
@@ -84,11 +81,11 @@ const Chat = ( props )=> {
        padding: "20px",
        backgroundColor:"antiquewhite",
    }
-   if (error !=null) 
+   if (error !=null || leave == true ) 
     return (
-    <div>choose a different name 
+    <div className = "room">
         <Link to="/">
-                <button className="btnSubmit" type="submit" onClick={ handleLeave } > Leave </button>
+                <button className="btnSubmit" type="submit" > Join</button>
             </Link>
     </div>)
     
@@ -96,9 +93,7 @@ const Chat = ( props )=> {
         <>
         <div className = "room">
             room {room}  <br/>
-        <Link to={"/"}>
-             <button className="btnSubmit" type="submit"> Leave </button>
-        </Link> 
+          <button className="btnSubmit" type="submit" onClick={handleLeave}> Leave </button>
         </div>
         <div className="chatContent">
             <div className="messageBox">
